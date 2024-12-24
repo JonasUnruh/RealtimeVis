@@ -76,3 +76,7 @@ p {
     color: white;
 
 }
+
+.text-padding {
+    flex-grow: 1;
+}
