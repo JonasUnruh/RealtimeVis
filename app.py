@@ -36,6 +36,10 @@ monthly_accidents = monthly_accidents.select(
 with open("./assets/data/us-states.json", "r") as f:
     geojson = json.loads(f.read())
 
+
+years = range(2016, 2024)
+state_dict = {feature["id"]: feature["properties"]["name"] for feature in geojson["features"]}
+
 # Create the choropleth map to show accidents by state
 def create_choropleth_map():
     # Plotly Choropleth map
@@ -108,7 +112,35 @@ app.layout = [
                                         value='severity_bar',  # Default value
                                     )
                                 ]
-                            )
+                            ),
+                            html.Div(
+                                className="div-dropdown",
+                                children=[
+                                    dcc.Dropdown(
+                                        id="year-dropdown",
+                                        options=[
+                                            {"label": str(year), "value": year}
+                                            for year in years
+                                        ],
+                                        value=2020
+                                    )
+                                ]
+                            ),
+                            html.Div(
+                                className="div-dropdown",
+                                children=[
+                                    dcc.Dropdown(
+                                        id="state-dropdown",
+                                        options=[
+                                            {"label": value, "value": key}
+                                            for key, value in state_dict.items()
+                                        ],
+                                        multi=True,
+                                        placeholder="Select State",
+                                        clearable=True
+                                    )
+                                ]
+                            ),
                         ]
                     ),
                     # Charts
@@ -143,7 +175,7 @@ def update_chart(chart_type):
     if chart_type == 'severity_bar':
         return create_severity_bar_chart()
     elif chart_type == 'time_line':
-        return create_accidents_over_month_line_graph()  
+        return create_accidents_over_month_line_graph()
 
 
 if __name__ == '__main__':
