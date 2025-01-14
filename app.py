@@ -2,6 +2,7 @@ import polars as pl
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 import json
+import csv
 
 app = Dash(
     external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css"]
@@ -36,6 +37,11 @@ monthly_accidents = monthly_accidents.select(
 with open("./assets/data/us-states.json", "r") as f:
     geojson = json.loads(f.read())
 
+state_lon_lat_dict = {}
+with open("./assets/data/lat_lon_data.txt", "r") as f:
+    reader = csv.reader(f, delimiter=',')
+    
+    state_lon_lat_dict = {row[1].strip("'"): (float(row[6]), float(row[7])) for row in reader}
 
 years = range(2016, 2024)
 state_dict = {feature["id"]: feature["properties"]["name"] for feature in geojson["features"]}
@@ -135,7 +141,6 @@ app.layout = [
                                             {"label": value, "value": key}
                                             for key, value in state_dict.items()
                                         ],
-                                        multi=True,
                                         placeholder="Select State",
                                         clearable=True
                                     )
@@ -168,6 +173,29 @@ app.layout = [
 
 
 @app.callback(
+        [
+            Output("state-dropdown", "value"),
+            Output("accidents-choropleth-map", "clickData")
+        ],
+        [
+            Input("accidents-choropleth-map", "clickData"),
+            Input("state-dropdown", "value")
+        ]
+)
+def update_district_dropdown(clickData, selectedData):
+    state = selectedData if selectedData else None
+    
+    if clickData:
+        clicked_state = clickData["points"][0]["location"]
+        if clicked_state == state:
+            state = None
+        else:
+            state = clicked_state
+
+    return state, None
+
+
+@app.callback(
     Output('chart-display', 'figure'),
     Input('chart-type-dropdown', 'value')
 )
@@ -176,6 +204,58 @@ def update_chart(chart_type):
         return create_severity_bar_chart()
     elif chart_type == 'time_line':
         return create_accidents_over_month_line_graph()
+    
+
+@app.callback(
+    Output("accidents-choropleth-map", "figure"),
+    [
+        Input("state-dropdown", "value"),
+        Input("year-dropdown", "value")
+        #Input("value-selector", "value")
+    ]
+)
+def update_map(selected_state, selected_year):
+    if selected_state:
+        data = state_summary.filter(pl.col("State") == selected_state)
+    else:
+        data = state_summary
+
+    fig = px.choropleth_mapbox(
+        data,
+        geojson=geojson,
+        featureidkey="id",
+        locations="State",
+        color='accidents',
+        color_continuous_scale="Viridis",
+        opacity=0.3,
+    )
+
+    fig.update_layout(
+            margin={"r":35,"t":0,"l":0,"b":0},
+            autosize=True,
+            mapbox_accesstoken=mapbox_access_token,
+            mapbox_style="dark",
+            font=dict(
+                color="white"
+            )
+    )
+
+    if selected_state:
+        center = state_lon_lat_dict[selected_state]
+
+        fig.update_layout( 
+            mapbox_zoom=4.3,
+            mapbox_center={"lat": center[0], "lon": center[1]},
+        )
+
+    else:
+        fig.update_layout(
+            mapbox_zoom=3,
+            mapbox_center={"lat": 38.000000, "lon": -90.000000}     
+        )
+        
+
+    return fig
 
 
 if __name__ == '__main__':
