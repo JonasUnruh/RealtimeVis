@@ -2,7 +2,7 @@ import polars as pl
 import pandas as pd
 import json
 
-data = pl.read_csv("./assets/data/US_Accidents_March23.csv")
+data = pl.read_csv("./src/assets/data/US_Accidents_March23.csv")
 
 data = data.filter([pl.col("Severity").is_not_null(), pl.col("Weather_Condition").is_not_null()])
 
@@ -92,13 +92,13 @@ result = (
     .join(weather_summary, on=["State", "Severity", "Year", "Month"])
 )
 
-result.write_parquet("./assets/data/summary_data.parquet")
+result.write_parquet("./src/assets/data/summary_data.parquet")
 
 
-with open("./assets/data/us-states.json", "r") as f:
+with open("./src/assets/data/us-states.json", "r") as f:
     geojson = json.loads(f.read())
 
-county_fp = pd.read_excel("./assets/data/US_FIPS_Codes.xls", header=1, dtype={"State": str, "County Name": str, "FIPS State": str, "FIPS County": str})
+county_fp = pd.read_excel("./src/assets/data/US_FIPS_Codes.xls", header=1, dtype={"State": str, "County Name": str, "FIPS State": str, "FIPS County": str})
 state_dict = {feature["id"]: feature["properties"]["name"] for feature in geojson["features"]}
 
 states = data.select("State").unique(subset = "State").to_dict()
@@ -129,4 +129,4 @@ for state in states["State"]:
         .join(county_severity_summary, on=["GEO_ID", "County", "Year", "Month"])
     )
 
-    result.write_parquet(f"./assets/data/{state}_summary_data.parquet") 
+    result.write_parquet(f"./src/assets/data/{state}_summary_data.parquet") 

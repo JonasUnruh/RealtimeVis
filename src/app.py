@@ -11,7 +11,7 @@ app = Dash(
 
 mapbox_access_token = "pk.eyJ1Ijoiam9uYXN1bnJ1aCIsImEiOiJjbHhhajBxczYxdHZpMmtzYWt6OWp3NGtoIn0._QenClOEROqOMq2h-9kLog"
 
-df = pl.read_parquet("./assets/data/summary_data.parquet")
+df = pl.read_parquet("./src/assets/data/summary_data.parquet")
 
 df = df.select(
     pl.col("State"),
@@ -25,14 +25,14 @@ df = df.select(
     pl.col("weather_count").cast(pl.Int32)
 )
 
-with open("./assets/data/us-states.json", "r") as f:
+with open("./src/assets/data/us-states.json", "r") as f:
     geojson = json.loads(f.read())
 
-with open("./assets/data/counties.geojson", "r") as f:
+with open("./src/assets/data/counties.geojson", "r") as f:
     county_geojson = json.loads(f.read())
 
 state_lon_lat_dict = {}
-with open("./assets/data/lat_lon_data.txt", "r") as f:
+with open("./src/assets/data/lat_lon_data.txt", "r") as f:
     reader = csv.reader(f, delimiter=',')
     state_lon_lat_dict = {row[1].strip("'"): (float(row[6]), float(row[7])) for row in reader}
 
@@ -299,7 +299,7 @@ def update_map(selected_state, selected_year, selected_indicator, selected_sever
     agg_func = aggregation_functions[selected_indicator]
 
     if selected_state:        
-        df = pl.read_parquet(f"./assets/data/{selected_state}_summary_data.parquet")
+        df = pl.read_parquet(f"./src/assets/data/{selected_state}_summary_data.parquet")
 
         df = df.select(
             pl.col("County"),
@@ -318,7 +318,7 @@ def update_map(selected_state, selected_year, selected_indicator, selected_sever
             subset=["County", "GEO_ID", "Month"]
         ).group_by(["County", "GEO_ID"]).agg(agg_func(selected_indicator))
     else:
-        df = pl.read_parquet("./assets/data/summary_data.parquet")
+        df = pl.read_parquet("./src/assets/data/summary_data.parquet")
 
         df = df.select(
             pl.col("State"),
