@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Jonas Unruh">
+    <meta name="description" content="Documentation">
+    <title>US Accidents Dashboard Documentation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+        body {
+            font-family: Roboto, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: white;
+            color: black;
+        }
+        nav {
+            background: #0056b3;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        nav a {
+            color: white;
+            margin-right: 15px;
+            text-decoration: none;
+        }
+        section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        code {
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>US Accidents Dashboard Documentation</h1>
+    </header>
+
+    <p>The purpose of the visualization is to get an understanding of the distribution of accidents and their severity across the US. To achieve this purpose <br>
+    Plotly Dash was used to create a basic dashboard layout and graph elements. Linking these is made easier by using Plotly Dash as well. Polars is used<br>
+    to handle the large amount of data and multiple parquet files split the data into digestable chunks for the dashboard.</p>
+
+    <p>Usage works via interaction with the charts as well as the dropdown menus that can be used for filtering and looking at different indicators.</p>
+
+    <p>To run the application simply download all files and execute the <code>requirements.txt</code> using the command <code>pip install -r requirements.txt</code>.<br>
+    If this runs succesfully and you have downloaded all data files you can run the app by excuting the <code>app.py</code> file with the command <code>python app.py</code>.<br>
+    Should not all data be present simply execute the <code>preprocessing.py</code> after having downloaded the full dataset from <a href="https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents">https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents</a><br>
+    and placing the file in the data folder. This will create all relevant files.</p>
+    
+    <p>All source code and documentation can be found under: <a href="https://github.com/JonasUnruh/RealtimeVis">https://github.com/JonasUnruh/RealtimeVis</a></p>
+
+
+</body>
+</html>
